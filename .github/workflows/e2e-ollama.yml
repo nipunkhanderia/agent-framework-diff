@@ -1,0 +1,39 @@
+name: End-to-End Demo (real Ollama + llama3.2)
+
+# This one is heavier (downloads the model), so it's manual-trigger only.
+# Run it from the GitHub Actions tab -> "End-to-End Demo" -> "Run workflow".
+on:
+  workflow_dispatch:
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Ollama
+        run: curl -fsSL https://ollama.com/install.sh | sh
+
+      - name: Start Ollama server
+        run: |
+          ollama serve &
+          sleep 5
+
+      - name: Pull llama3.2
+        run: ollama pull llama3.2
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run LangChain version
+        run: python langchain_version/main.py
+
+      - name: Run LangGraph version
+        run: python langgraph_version/main.py
+
+      - name: Run CrewAI version
+        run: python crewai_version/main.py
