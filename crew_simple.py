@@ -39,7 +39,7 @@ As a registered user, I want to log in with my email and password
 so that I can access my account dashboard.
 
 Acceptance Criteria:
-- User can log in with a valid email and password   
+- User can log in with a valid email and password                   
 - User sees an error message for invalid credentials
 - Account locks after 5 failed login attempts
 """
