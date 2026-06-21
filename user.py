@@ -44,6 +44,7 @@ class AgentState(TypedDict):
     feature: str
     scenarios: str
     usecase: str
+    retries:int
 
 Analyst_prompt = """You are a QA Requirements Analyst.
 Read the feature description below and write a numbered list of test
@@ -72,7 +73,20 @@ def analyst_node(state):
     chain = prompt | llm
     scenarios = chain.invoke({"feature":state["feature"]})
     # print(scenarios)
-    return {"scenarios": scenarios}
+    return {"scenarios": scenarios,
+            "retries": state.get("retries", 0) + 1}
+
+def check_scenario_quality(state):
+    response_length = state["scenarios"].count("\n") 
+    print("Response lenght is " + str(response_length))
+    retries = state["retries"]
+    print(retries)
+    if response_length > 3:
+        return "writer"
+    if retries > 3:
+        return "writer"
+    return "retry"
+
 
 
 
@@ -95,7 +109,13 @@ graph.add_node("writer", writer_node)
 
 
 graph.set_entry_point("analyst")
-graph.add_edge("analyst","writer")
+graph.add_conditional_edges(
+    "analyst", check_scenario_quality,{
+        "writer":"writer",
+        "retry":"analyst"
+    }
+)
+# graph.add_edge("analyst","writer")
 graph.add_edge("writer", END)
 
 
