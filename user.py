@@ -40,9 +40,9 @@ from langchain_core.prompts import PromptTemplate
 
 llm = OllamaLLM(model="llama3.2", base_url="http://localhost:11434")
 
-class Features(TypedDict):
+class AgentState(TypedDict):
     feature: str
-    testcase: str
+    scenarios: str
     usecase: str
 
 Analyst_prompt = """You are a QA Requirements Analyst.
@@ -52,14 +52,62 @@ scenarios (positive, negative, and edge cases).
 Feature description:
 {feature}
 """
-def analyst_node(state: Features):
+
+writer_prompt = """You are a QA Testcase writer.
+Read the feature description below and write test cases.
+
+Test ID: TC-XX
+Title: <short title>
+Steps:
+ 1. ...
+Expected Result: ...
+
+Scenarios:
+{scenarios}
+"""
+
+state = AgentState()
+def analyst_node(state):
     prompt = PromptTemplate.from_template(Analyst_prompt)
     chain = prompt | llm
-    usecase = chain.invoke({"feature":state["feature"]})
-    print(usecase)
-
-
-analyst_node({"feature" : "Airbus A380", "testcase":"Testcase", "usecase" : "USecase"})
+    scenarios = chain.invoke({"feature":state["feature"]})
+    # print(scenarios)
+    return {"scenarios": scenarios}
 
 
 
+def writer_node(state):
+    prompt = PromptTemplate.from_template(writer_prompt)
+    chain = prompt | llm
+    usecase = chain.invoke({"scenarios" : state["scenarios"]})
+    # print(usecase)
+    return{"usecase":usecase}
+
+
+# analyst_result = analyst_node({"feature" : "Airbus A380", "scenarios":"", "usecase" : ""})
+# writer_node({"feature":"", "scenarios":analyst_result["scenarios"], "usecase":""})
+
+from langgraph.graph import StateGraph, END
+graph = StateGraph(AgentState)
+
+graph.add_node("analyst",analyst_node)
+graph.add_node("writer", writer_node)
+
+
+graph.set_entry_point("analyst")
+graph.add_edge("analyst","writer")
+graph.add_edge("writer", END)
+
+
+app = graph.compile()
+
+
+if __name__ == "__main__":
+    starting_state = {
+        "feature":"Airbus A380",
+        "scenario":"",
+        "usecase":""
+    }
+    result = app.invoke(starting_state)
+    print("===================================Below are the use cases==================================")
+    print(result["usecase"])
