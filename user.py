@@ -1,6 +1,9 @@
 from typing import TypedDict
 from langchain_core.prompts import PromptTemplate
 from langchain_ollama import OllamaLLM
+import langchain
+
+langchain.debug = True
 
 
 ANALYST_PROMPT = """You are a QA Requirements Analyst.
@@ -20,10 +23,11 @@ class AgentState(TypedDict):
 
 def anlayst_node(state:AgentState):
     prompt = PromptTemplate.from_template(ANALYST_PROMPT)
-    print(prompt)
+    print(prompt.format(feature=state["feature"]))
+    print("=" * 50)
     chain = prompt | llm
-    print(chain)
-    scenarios = chain.invoke({"feature"})
+    # print(chain)
+    scenarios = chain.invoke({"feature":state["feature"]})
     print(scenarios)
 
 
