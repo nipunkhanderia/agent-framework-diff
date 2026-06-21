@@ -23,8 +23,8 @@ def anlayst_node(state:AgentState):
     print(prompt)
     chain = prompt | llm
     print(chain)
-    scenarios = chain.invoke({})
+    scenarios = chain.invoke({"feature"})
     print(scenarios)
 
 
-anlayst_node({"feature":"121", "scenario":"2121","test_cases":"21212"})
+anlayst_node({"feature":"Airbus A380", "scenario":"2121","test_cases":"21212"})
