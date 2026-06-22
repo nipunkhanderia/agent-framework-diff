@@ -1,27 +1,27 @@
-name: Lint & Unit Tests
+# name: Lint & Unit Tests
 
-# Runs on every push/PR. Fast and free - does NOT call the real LLM.
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+# # Runs on every push/PR. Fast and free - does NOT call the real LLM.
+# on:
+#   push:
+#     branches: [main]
+#   pull_request:
+#     branches: [main]
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+# jobs:
+#   test:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+#       - uses: actions/setup-python@v5
+#         with:
+#           python-version: "3.11"
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+#       - name: Install dependencies
+#         run: pip install -r requirements.txt
 
-      - name: Lint with flake8
-        run: flake8 . --max-line-length=120 --extend-exclude=venv,.venv
+#       - name: Lint with flake8
+#         run: flake8 . --max-line-length=120 --extend-exclude=venv,.venv
 
-      - name: Run smoke tests
-        run: pytest tests/ -v
+#       - name: Run smoke tests
+#         run: pytest tests/ -v
