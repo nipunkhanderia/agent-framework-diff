@@ -33,22 +33,30 @@ analyst_agent = PromptTemplate.from_template(analyst_prompt) | llm
 writer_agent = PromptTemplate.from_template(writer_prompt) | llm
 
 # print(analyst_agent)
-feature = "A380"
 
 def get_scenrios(feature):
-    scenrios = analyst_agent.invoke({"feature": feature})
-    # print (scenrios)
-    return scenrios
+    retries = 0
+    while True:
+        
+        scenrios = analyst_agent.invoke({"feature": feature})
+        retries = retries + 1
+        print (retries)
+        if scenrios.count("\n") > 60 or retries > 3: 
+            print(f"The scenrios count is  - {scenrios.count('\n')}---the scerios are  -- {scenrios}---retries are {retries}")
+            return scenrios
 def get_test(scenrios):
     tests = writer_agent.invoke({"scenrios":scenrios})
     # print(tests)
     return tests
 
-scenrios = get_scenrios(feature)
-test_cases = get_test(scenrios)
 
-print(scenrios)
-print(test_cases)
+
+if __name__ == "__main__":
+    feature = "A380"
+    scenrios = get_scenrios(feature)
+    # test_cases = get_test(scenrios)
+    print(scenrios)
+    # print(test_cases)
 
 
 
